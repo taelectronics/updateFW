@@ -3,10 +3,13 @@
 
 #include "HttpsOTAUpdate.h"
 
+#include <esp_task_wdt.h>
 
 
 #define WIFI_SSID "my wifi"
 #define WIFI_PASSSWORD  "12345566778"
+
+#define WDT_TIMEOUT 15                   // WDT Timeout in seconds
 
 WiFiMulti wiFiMulti;
 
@@ -59,11 +62,31 @@ void WiFi_Init();
 void Update_FW();
 
 void setup() {
+
   Serial.begin(9600);
+
+  if (ESP_OK != esp_task_wdt_init(WDT_TIMEOUT, true)) // Initialize ESP32 Task WDT
+  {
+    while(1);
+  }
+
+  if (ESP_OK != esp_task_wdt_add(NULL))  // Subscribe to the Task WDT
+  {
+    while(1);
+  }
 
   (void) WiFi_Init();
 
   (void) Update_FW();
+
+  esp_task_wdt_reset();
+
+  esp_task_wdt_delete(NULL);
+
+  if (ESP_OK != esp_task_wdt_deinit())
+  {
+    while(1);
+  }
 }
 
 void loop() {
