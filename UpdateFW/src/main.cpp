@@ -60,8 +60,8 @@ void Update_FW();
 
 void setup() {
   Serial.begin(9600);
+
   (void) WiFi_Init();
-  /**/
 
   (void) Update_FW();
 }
